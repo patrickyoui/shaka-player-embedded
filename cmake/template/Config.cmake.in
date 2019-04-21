@@ -1,0 +1,11 @@
+@PACKAGE_INIT@
+
+find_package(glog CONFIG REQUIRED)
+find_package(v8 CONFIG REQUIRED)
+find_package(CURL CONFIG REQUIRED)
+find_package(libxml-2.0 CONFIG REQUIRED)
+find_package(SDL2 CONFIG REQUIRED)
+find_package(ffmpeg CONFIG REQUIRED)
+
+include("${CMAKE_CURRENT_LIST_DIR}/@TARGETS_EXPORT_NAME@.cmake")
+check_required_components("@PROJECT_NAME@")
