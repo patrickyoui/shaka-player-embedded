@@ -34,6 +34,9 @@ _MAX_BETA_VERSION = 2**3 - 1
 
 def _GetVersion():
   """Returns the version string of the library."""
+  if True:
+    # FIXME
+    return 'v0.1.0-beta'
   try:
     cur_dir = os.path.dirname(__file__)
     cmd = ['git', '-C', cur_dir, 'describe', '--tags', '--dirty']
