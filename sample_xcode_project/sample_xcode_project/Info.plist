@@ -5,15 +5,15 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>${DEVELOPMENT_LANGUAGE}</string>
 	<key>CFBundleDisplayName</key>
-	<string>Shaka Player</string>
+	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundleExecutable</key>
-	<string>${EXECUTABLE_NAME}</string>
+	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
-	<string>${IOS_BUNDLE_ID_PREFIX}.${EXECUTABLE_NAME:rfc1034identifier}</string>
+	<string>$(BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>${PRODUCT_NAME}</string>
+	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
