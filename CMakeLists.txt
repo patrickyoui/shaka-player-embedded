@@ -11,6 +11,16 @@ project(shaka_player_embedded VERSION 0.1.0)
 
 option(SHAKA_PLAYER_EMBEDDED_BUILD_DEMO "Build demo" OFF)
 
+# See 'js_engine', BUILD.gn
+# Values: JSC, V8
+if(IOS)
+  set(js_default "JSC")
+else()
+  set(js_default "V8")
+endif()
+
+set(SHAKA_PLAYER_EMBEDDED_JS_ENGINE ${js_default} CACHE STRING "js engine")
+
 find_package(Python 2 REQUIRED)
 
 set(gen_dir ${CMAKE_CURRENT_BINARY_DIR}/generated)
@@ -353,27 +363,64 @@ set(
     shaka/src/util/crypto_openssl.cc
     shaka/src/util/decryptor_openssl.cc
 
-    shaka/src/memory/v8_heap_tracer.cc
-    shaka/src/memory/v8_heap_tracer.h
-
-    # if (js_engine == "v8") {
-    #   sources += [
-
-    shaka/src/mapping/v8/js_engine.cc
-    shaka/src/mapping/v8/js_wrappers.cc
-    shaka/src/mapping/v8/v8_utils.cc
-    shaka/src/mapping/v8/v8_utils.h
-    shaka/src/memory/v8_heap_tracer.cc
-    shaka/src/memory/v8_heap_tracer.h
-
     ${shaka_version_h}
     ${shaka_config_h}
     ${eme_plugins_cc}
     ${idl_shaka_sources}
 )
 
+if("${SHAKA_PLAYER_EMBEDDED_JS_ENGINE}" STREQUAL "JSC")
+  list(
+      APPEND
+      sources
+
+      # } else if (js_engine == "jsc") {
+
+      shaka/src/mapping/jsc/js_engine.cc
+      shaka/src/mapping/jsc/js_wrappers.cc
+      shaka/src/mapping/jsc/jsc_utils.cc
+      shaka/src/mapping/jsc/jsc_utils.h
+  )
+elseif("${SHAKA_PLAYER_EMBEDDED_JS_ENGINE}" STREQUAL "V8")
+  list(
+      APPEND
+      sources
+
+      # if (js_engine == "v8") {
+      #   sources += [
+
+      shaka/src/mapping/v8/js_engine.cc
+      shaka/src/mapping/v8/js_wrappers.cc
+      shaka/src/mapping/v8/v8_utils.cc
+      shaka/src/mapping/v8/v8_utils.h
+      shaka/src/memory/v8_heap_tracer.cc
+      shaka/src/memory/v8_heap_tracer.h
+  )
+endif()
+
+if(IOS)
+  list(
+      APPEND
+      sources
+      shaka/src/public/ShakaPlayerView.mm
+  )
+endif()
+
 # shared_library("player_shared")
 add_library(shaka_player_embedded ${sources})
+add_library(
+    shaka_player_embedded::shaka_player_embedded
+    ALIAS
+    shaka_player_embedded
+)
+
+if(IOS)
+  set_target_properties(
+     shaka_player_embedded
+     PROPERTIES
+     XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
+  )
+endif()
 
 if(APPLE)
   target_compile_options(
@@ -385,11 +432,53 @@ target_compile_definitions(
     shaka_player_embedded
     PUBLIC
     $<BUILD_INTERFACE:OS_POSIX>
-    $<BUILD_INTERFACE:USING_V8>
     $<BUILD_INTERFACE:BUILDING_SHAKA>
 )
 
-if(APPLE)
+if("${SHAKA_PLAYER_EMBEDDED_JS_ENGINE}" STREQUAL "JSC")
+  target_compile_definitions(
+      shaka_player_embedded
+      PUBLIC
+      $<BUILD_INTERFACE:USING_JSC>
+  )
+elseif("${SHAKA_PLAYER_EMBEDDED_JS_ENGINE}" STREQUAL "V8")
+  hunter_add_package(v8)
+  find_package(v8 CONFIG REQUIRED)
+  target_link_libraries(
+      shaka_player_embedded
+      PUBLIC
+      v8::v8_base
+      v8::v8_init
+      v8::v8_initializers
+      v8::v8_libbase
+      v8::v8_libplatform
+      v8::v8_libsampler
+      v8::v8_nosnapshot
+  )
+
+  target_compile_definitions(
+      shaka_player_embedded
+      PUBLIC
+      $<BUILD_INTERFACE:USING_V8>
+  )
+else()
+  message(FATAL_ERROR "Unknow value")
+endif()
+
+if(IOS)
+  target_compile_definitions(
+      shaka_player_embedded
+      PUBLIC
+      $<BUILD_INTERFACE:OS_IOS>
+      $<BUILD_INTERFACE:PLATFORM="iOS">
+  )
+  find_package(javascriptcore REQUIRED)
+  target_link_libraries(
+      shaka_player_embedded
+      PUBLIC
+      javascriptcore::javascriptcore
+  )
+elseif(APPLE)
   target_compile_definitions(
       shaka_player_embedded
       PUBLIC
@@ -417,20 +506,6 @@ target_include_directories(
 hunter_add_package(glog)
 find_package(glog CONFIG REQUIRED)
 target_link_libraries(shaka_player_embedded PUBLIC glog::glog)
-
-hunter_add_package(v8)
-find_package(v8 CONFIG REQUIRED)
-target_link_libraries(
-    shaka_player_embedded
-    PUBLIC
-    v8::v8_base
-    v8::v8_init
-    v8::v8_initializers
-    v8::v8_libbase
-    v8::v8_libplatform
-    v8::v8_libsampler
-    v8::v8_nosnapshot
-)
 
 hunter_add_package(CURL)
 find_package(CURL CONFIG REQUIRED)
