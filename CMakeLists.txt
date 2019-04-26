@@ -540,3 +540,7 @@ if(SHAKA_PLAYER_EMBEDDED_BUILD_DEMO)
   find_package(gflags CONFIG REQUIRED)
   target_link_libraries(demo PUBLIC gflags)
 endif()
+
+if(IOS)
+  add_subdirectory(sample_xcode_project/sample_xcode_project)
+endif()
