@@ -15,7 +15,7 @@
 #import "LicenseTableViewController.h"
 #import "LicenseViewController.h"
 #import "PlayerViewController.h"
-#import <ShakaPlayerEmbedded/ShakaPlayerEmbedded.h>
+#import <shaka/ShakaPlayerEmbedded.h>
 
 @interface LicenseTableViewController()
 

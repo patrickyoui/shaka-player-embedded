@@ -16,7 +16,7 @@
 #import "PlayerViewController.h"
 #import "ProgressAndBufferedSlider.h"
 #import "NSObject+ShakaLayoutHelpers.h"
-#import <ShakaPlayerEmbedded/ShakaPlayerEmbedded.h>
+#import <shaka/ShakaPlayerEmbedded.h>
 
 #define ShakaFadeBegin 4
 #define ShakaFadeEnd 4.25

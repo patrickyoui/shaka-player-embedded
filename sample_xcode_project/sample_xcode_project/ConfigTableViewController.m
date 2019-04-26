@@ -16,7 +16,7 @@
 #import "ConfigTableValue.h"
 #import "NSObject+ShakaLayoutHelpers.h"
 #import "PlayerViewController.h"
-#import <ShakaPlayerEmbedded/ShakaPlayerEmbedded.h>
+#import <shaka/ShakaPlayerEmbedded.h>
 
 #define ShakaTextInputBorderWidth 2
 
