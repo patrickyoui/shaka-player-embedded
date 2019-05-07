@@ -442,19 +442,36 @@ if("${SHAKA_PLAYER_EMBEDDED_JS_ENGINE}" STREQUAL "JSC")
       $<BUILD_INTERFACE:USING_JSC>
   )
 elseif("${SHAKA_PLAYER_EMBEDDED_JS_ENGINE}" STREQUAL "V8")
-  hunter_add_package(v8)
-  find_package(v8 CONFIG REQUIRED)
-  target_link_libraries(
-      shaka_player_embedded
-      PUBLIC
-      v8::v8_base
-      v8::v8_init
-      v8::v8_initializers
-      v8::v8_libbase
-      v8::v8_libplatform
-      v8::v8_libsampler
-      v8::v8_nosnapshot
-  )
+
+  if (YI_DIRECT_V8)
+     # In direct mode, we assume v8 is also direct and is included before shaka
+      target_link_libraries(
+          shaka_player_embedded
+          PUBLIC
+          v8_base
+          v8_init
+          v8_initializers
+          v8_libbase
+          v8_libplatform
+          v8_libsampler
+          v8_nosnapshot
+      )
+  else()
+
+      hunter_add_package(v8)
+      find_package(v8 CONFIG REQUIRED)
+      target_link_libraries(
+          shaka_player_embedded
+          PUBLIC
+          v8::v8_base
+          v8::v8_init
+          v8::v8_initializers
+          v8::v8_libbase
+          v8::v8_libplatform
+          v8::v8_libsampler
+          v8::v8_nosnapshot
+      )
+   endif()
 
   target_compile_definitions(
       shaka_player_embedded
